@@ -1,29 +1,30 @@
 import { useState, useEffect, Fragment } from 'react';
-import { Stack, Typography, Box, IconButton, Divider, CircularProgress, useTheme, Button, styled } from '@mui/material'; // Updated import
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Updated import
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'; // Updated import
-import BookmarkIcon from '@mui/icons-material/Bookmark'; // Updated import
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'; // Updated import
-import { useParams, useHistory } from 'react-router-dom';
+import { Stack, Typography, Box, IconButton, Divider, CircularProgress, Button, styled } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const AlignCenterBox = styled(Box)(({ theme }) => ({ ...theme.mixins.alignInTheCenter }));
 
 const Definition = ({ bookmarks, addBookmark, removeBookmark }) => {
     const { word } = useParams();
-    const history = useHistory();
+    const navigate = useNavigate();
     const [definitions, setDefinitions] = useState([]);
     const [exist, setExist] = useState(true);
     const [audio, setAudio] = useState(null);
 
     const isBookmarked = Object.keys(bookmarks).includes(word);
 
-    const updateState = data => {
+    const updateState = (data) => {
         setDefinitions(data);
-        const phonetics = data[0].phonetics;
-        if (!phonetics.length) return;
-        const url = phonetics[0].audio.replace('//ssl', 'https://ssl');
-        setAudio(new Audio(url));
+        const phonetics = data[0]?.phonetics;
+        if (phonetics && phonetics.length > 0) {
+            const url = phonetics[0].audio.replace('//ssl', 'https://ssl');
+            setAudio(new Audio(url));
+        }
     };
 
     useEffect(() => {
@@ -32,18 +33,22 @@ const Definition = ({ bookmarks, addBookmark, removeBookmark }) => {
                 const resp = await axios.get(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
                 updateState(resp.data);
             } catch (err) {
+                console.error("Error fetching definition:", err); // Improved error logging
                 setExist(false);
             }
         };
 
-        if (!isBookmarked) fetchDefinition();
-        else updateState(bookmarks[word]);
+        if (!isBookmarked) {
+            fetchDefinition();
+        } else {
+            updateState(bookmarks[word]);
+        }
     }, [bookmarks, isBookmarked, word]);
 
     if (!exist) return (
         <AlignCenterBox>
             <Typography>Word not found</Typography>
-            <Button variant="contained" sx={{ textTransform: 'capitalize', mt: 2 }} onClick={history.goBack}>Go back</Button>
+            <Button variant="contained" sx={{ textTransform: 'capitalize', mt: 2 }} onClick={() => navigate(-1)}>Go back</Button>
         </AlignCenterBox>
     );
 
@@ -52,11 +57,11 @@ const Definition = ({ bookmarks, addBookmark, removeBookmark }) => {
     return (
         <>
             <Stack direction="row" justifyContent="space-between">
-                <IconButton onClick={history.goBack}>
-                    <ArrowBackIcon sx={{ color: 'black' }} /> {/* Updated icon */}
+                <IconButton onClick={() => navigate(-1)}>
+                    <ArrowBackIcon sx={{ color: 'black' }} />
                 </IconButton>
                 <IconButton onClick={() => isBookmarked ? removeBookmark(word) : addBookmark(word, definitions)}>
-                    {isBookmarked ? <BookmarkIcon sx={{ color: 'black' }} /> : <BookmarkBorderIcon sx={{ color: 'black' }} />} {/* Updated icon */}
+                    {isBookmarked ? <BookmarkIcon sx={{ color: 'black' }} /> : <BookmarkBorderIcon sx={{ color: 'black' }} />}
                 </IconButton>
             </Stack>
             <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{
@@ -69,21 +74,23 @@ const Definition = ({ bookmarks, addBookmark, removeBookmark }) => {
                 borderRadius: 2,
             }}>
                 <Typography sx={{ textTransform: 'capitalize' }} variant="h5">{word}</Typography>
-                {audio && <IconButton onClick={() => audio.play()} sx={{
-                    borderRadius: 2,
-                    p: 1,
-                    color: '#fff',
-                    background: theme => theme.palette.pink.main, // Ensure palette color is accessed correctly
-                }}>
-                    <PlayArrowIcon />
-                </IconButton>}
+                {audio && (
+                    <IconButton onClick={() => audio.play()} sx={{
+                        borderRadius: 2,
+                        p: 1,
+                        color: '#fff',
+                        background: theme => theme.palette.pink.main,
+                    }}>
+                        <PlayArrowIcon />
+                    </IconButton>
+                )}
             </Stack>
 
             {definitions.map((def, idx) => (
-                <Fragment key={idx}>
+                <Fragment key={def.word + idx}> {/* Use a unique key */}
                     <Divider sx={{ display: idx === 0 ? 'none' : 'block', my: 3 }} />
-                    {def.meanings.map(meaning => (
-                        <Box key={Math.random()} sx={{
+                    {def.meanings.map((meaning) => (
+                        <Box key={meaning.partOfSpeech} sx={{
                             boxShadow: '0px 10px 25px rgba(0, 0, 0, 0.05)',
                             backgroundColor: '#fff',
                             p: 2,
@@ -91,9 +98,9 @@ const Definition = ({ bookmarks, addBookmark, removeBookmark }) => {
                             mt: 3
                         }}>
                             <Typography sx={{ textTransform: 'capitalize' }} color="GrayText" variant="subtitle1">{meaning.partOfSpeech}</Typography>
-                            {meaning.definitions.map((definition, idx) => (
-                                <Typography sx={{ my: 1 }} variant="body2" color="GrayText" key={definition.definition}>
-                                    {meaning.definitions.length > 1 && `${idx + 1}. `} {definition.definition}
+                            {meaning.definitions.map((definitionItem, idx) => (
+                                <Typography sx={{ my: 1 }} variant="body2" color="GrayText" key={definitionItem.definition}>
+                                    {meaning.definitions.length > 1 && `${idx + 1}. `} {definitionItem.definition}
                                 </Typography>
                             ))}
                         </Box>

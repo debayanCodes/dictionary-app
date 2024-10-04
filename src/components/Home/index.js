@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import { Box, Typography, FilledInput, IconButton, useTheme } from '@mui/material'; // Updated import
-import SearchIcon from '@mui/icons-material/Search'; // Updated import
-import BookmarkIcon from '@mui/icons-material/Bookmark'; // Updated import
-import { useHistory, Link } from 'react-router-dom';
+import { Box, Typography, FilledInput, IconButton, useTheme } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Home = () => {
     const [word, setWord] = useState("");
     const theme = useTheme();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const trimmedWord = word.trim().toLowerCase();
         if (!trimmedWord || trimmedWord.split(' ').length > 1) return;
-        history.push(`/search/${trimmedWord}`);
+        navigate(`/search/${trimmedWord}`); // Use navigate for routing
     };
 
     return (
@@ -29,7 +29,9 @@ const Home = () => {
             >
                 Dictionary
             </Typography>
-            <Typography color="GrayText">Find meanings and save for quick reference</Typography>
+            <Typography color="text.secondary"> {/* Changed to text.secondary for better theming */}
+                Find meanings and save for quick reference
+            </Typography>
             <Box sx={{ width: '360px' }}>
                 <form onSubmit={handleSubmit}>
                     <FilledInput
@@ -58,7 +60,7 @@ const Home = () => {
                     borderRadius: 2,
                     p: 2,
                     color: '#fff',
-                    background: theme => theme.palette.pink.main, // Updated to use palette color
+                    background: theme.palette.pink.main, // Ensure palette color is accessed correctly
                     boxShadow: '0px 10px 10px rgba(221, 114, 133, 0.2)',
                 }}
             >

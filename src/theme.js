@@ -1,5 +1,4 @@
-import { createTheme } from '@material-ui/core'
-
+import { createTheme } from '@mui/material/styles'; // Updated import
 
 export default createTheme({
     palette: {
@@ -9,23 +8,25 @@ export default createTheme({
         primary: {
             main: "#14194C",
         },
-        pink: 'linear-gradient(138.72deg, #DC8295 0%, #DC687C 95.83%)'
+        pink: {
+            main: '#DC8295', // Use a solid color for the palette
+            light: '#DC687C', // Optionally add a light variant
+        }
     },
     typography: {
         fontFamily: 'Mulish, sans-serif',
         h4: {
-            fontWeight: 800
+            fontWeight: 800,
         },
         h5: {
-            fontWeight: 800
+            fontWeight: 800,
         },
         h6: {
-            fontWeight: 800
+            fontWeight: 800,
         },
         subtitle1: {
-            fontWeight: 800
+            fontWeight: 800,
         },
-
     },
     mixins: {
         alignInTheCenter: {
@@ -33,7 +34,7 @@ export default createTheme({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            height: '100vh'
+            height: '100vh',
         }
     }
-})
+});

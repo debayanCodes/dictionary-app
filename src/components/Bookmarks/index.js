@@ -1,5 +1,5 @@
-import { Stack, IconButton, Typography, Box } from '@mui/material'; // Updated import
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Updated import
+import { Stack, IconButton, Typography, Box } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Link } from 'react-router-dom';
 
 const Bookmarks = ({ bookmarks }) => {
@@ -7,17 +7,21 @@ const Bookmarks = ({ bookmarks }) => {
         <>
             <Stack sx={{ mb: 2 }} direction="row" alignItems="center">
                 <IconButton to="/" component={Link} sx={{ color: 'black', mr: 1 }}>
-                    <ArrowBackIcon /> {/* Updated icon */}
+                    <ArrowBackIcon />
                 </IconButton>
                 <Typography variant="h6">Bookmarks</Typography>
             </Stack>
-            {
-                !!Object.keys(bookmarks).length ? (
-                    Object.keys(bookmarks).map(b => (
+            {Object.keys(bookmarks).length > 0 ? (
+                Object.keys(bookmarks).map((b) => (
+                    <Link
+                        key={b}
+                        to={`/search/${b}`}
+                        style={{
+                            textDecoration: 'none', // Remove underline
+                            color: 'black', // Text color
+                        }}
+                    >
                         <Box
-                            key={b}
-                            to={`/search/${b}`}
-                            component={Link}
                             sx={{
                                 p: 2,
                                 cursor: 'pointer',
@@ -27,19 +31,17 @@ const Bookmarks = ({ bookmarks }) => {
                                 mb: 2,
                                 fontWeight: 800,
                                 display: 'block',
-                                color: 'black',
-                                textDecoration: 'none',
                             }}
                         >
                             {b}
                         </Box>
-                    ))
-                ) : (
-                    <Typography sx={{ mt: 5 }} align="center">No Bookmarks</Typography>
-                )
-            }
+                    </Link>
+                ))
+            ) : (
+                <Typography sx={{ mt: 5 }} align="center">No Bookmarks</Typography>
+            )}
         </>
     );
-}
+};
 
 export default Bookmarks;
